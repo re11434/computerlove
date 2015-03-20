@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NICK</title>
+
+
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/styles.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/underscorejs/1.4.3/underscore-min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+<link rel="stylesheet" href="/css/jquery.dynameter.css">
+<script type="text/javascript" src="/js/jquery.dynameter.js"></script>
+<script type="text/javascript" src="/js/dynameter.instance.js"></script>
+<script type="text/javascript" src="http://www.bootstrap-switch.org/dist/js/bootstrap-switch.js"></script>
+
+
+<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+<link rel="stylesheet" href="http://www.bootstrap-switch.org/docs/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/slider.css">
+
+</head>
+<body>
+
+
+
+
+<!-- Start your code here -->
+<ul class="nav nav-pills" role="tablist">
+  <li role="presentation" class="active"><a href="#/">Home <span class="badge">42</span></a></li>
+  <li role="presentation"><a href="#/rewards">Profile</a></li>
+  <li role="presentation"><a href="#">Messages <span class="badge">3</span></a></li>
+</ul>
+
+<div class="row">
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="images/profile.png" alt="Upload a profile picture">
+      <div class="caption">
+        <h5>@Username</h5>
+        <ul>
+        	<li>Age: 22</li>
+        	<li>From: NYC</li>
+        </ul>
+        <p><a href="#" class="btn btn-primary" role="button">Flirt</a> <a href="#" class="btn btn-default" role="button">Pass</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+ 
+<div class="page"></div>
+</div>
+
+<script type="text/template" id="user-list-template">
+<br/>
+<div class="sponge"><!--logo here--></div>
+<a href="#/new" class="btn btn-primary">Add New Task</a>
+
+
+<table class="table striped table-hover">
+	<thead>
+		<tr>
+			<th>Current Tasks</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+<% _.each(users, function(user) { 
+    if(user.get('firstname') != 'Thomas'){
+    %>
+
+	<tr>
+    <td><input type="checkbox" name="<%= user.get('firstname') %>" value="<%= user.get('firstname') %>"> <%= user.get('firstname') %></td>
+	</tr>
+
+<%} }); %>
+	</tbody>
+	</table>
+    
+
+
+</script>
+
+
+
+<script type="text/template" id="kid-list-template">
+<h1>Tasks</h1>
+<hr/>
+
+
+
+
+<table class="table striped table-hover">
+    <thead>
+        <tr>
+            <th>Task</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+<% _.each(users, function(user) { 
+    if(user.get('firstname') != 'Thomas'){%>
+    <tr>
+    <td><input type="checkbox" name="" value="" onchange="add()"> <%= user.get('firstname') %></td>
+    <td><img src='images/play.png' height="42" width="42" onClick='playSound()' /></td>
+    </tr>
+
+<% }}); %>
+    </tbody>
+    </table>
+
+</script>
+
+
+<script type="text/template" id="edit-user-template">
+<form class="edit-user-form">
+<legend>Add Task</legend>
+<table>
+   
+    <tr>
+        <td>
+            <img src='https://s3.amazonaws.com/hackvia-moshe/mic2.png' height="42" width="42" />
+        </td>
+        <td>
+            <input type="text" name="firstname" value="<%= user ? user.get('firstname') : '' %>" />
+        </td>
+    </tr>
+<table>
+
+
+
+<button type="submit" class="btn"><%= user ? "Save" : "Create" %></button>
+
+
+</form>
+</script>
+<!-- End your code here -->
+
+<script>/* Write JavaScript here */
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+    console.log('http://backbonejs-beginner.herokuapp.com' + options.url);
+    options.url = 'http://backbonejs-beginner.herokuapp.com' + options.url;
+});
+
+$.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
+var Users = Backbone.Collection.extend({
+    url: "/users"
+});
+
+var User = Backbone.Model.extend({
+    urlRoot: "/users"
+});
+
+var TaskList = Backbone.View.extend({
+    el: ".page",
+
+    render: function() {
+    	$(document).ready(function(){
+    });
+        var that = this;
+        var users = new Users();
+        users.fetch({
+            success: function(users) {
+                var template = _.template($("#user-list-template").html(), {
+                    users: users.models
+                });
+                that.$el.html(template);
+                console.log(users);
+            }
+        });
+
+    }
+});
+
+var Rewards = Backbone.View.extend({
+    el: ".page",
+
+    render: function() {
+
+    	var settingsInfo = "<h1>View loaded</h1>";
+        this.$el.html(settingsInfo);
+
+      
+
+    },
+    getTasks: function(){
+        var that = this;
+        var users = new Users();
+    	  users.fetch({
+            success: function(users) {
+                var template = _.template($("#kid-list-template").html(), {
+                    users: users.models
+                });
+              that.$el.html(template);
+ 
+                
+            }
+        });
+    }
+});
+
+
+var Settings = Backbone.View.extend({
+    el: ".page",
+
+    render: function() {
+
+        var settingsInfo = "<h1>Content Locked</h1></br><img src='/images/lockedState.png'  border='0' title='Settings' />";
+        this.$el.html(settingsInfo);
+
+    }
+});
+
+var Completed = Backbone.View.extend({
+    el: ".page",
+
+    render: function() {
+
+        var completeInfo = "<h1>You unlocked an item!</h1><video id='vid' src='sound/vid.m4v'  ></video><img src='/images/unlocked.png' onclick='playVideo()' border='0' title='Completed Tasks' />";
+        this.$el.html(completeInfo);
+
+    }
+});
+
+var EditTask = Backbone.View.extend({
+    el: ".page",
+    render: function(options) {
+        var that = this; //Keep the scope of the view
+        if (options.id) {
+            that.user = new User({
+                id: options.id
+            });
+            that.user.fetch({
+                success: function(user) {
+
+                    var template = _.template($("#edit-user-template").html(), {
+                        user: user
+                    });
+                    that.$el.html(template);
+
+                },
+                error: function(user) {
+
+                    console.log("Error Editing Task");
+                }
+            }); //get user/id
+        } else {
+            var template = _.template($("#edit-user-template").html(), {
+                user: null
+            });
+            this.$el.html(template);
+        }
+
+    },
+    events: {
+        'submit .edit-user-form': 'saveUser',
+        'click .delete': 'deleteUser'
+    },
+    saveUser: function(ev) {
+        var userDetails = $(ev.currentTarget).serializeObject();
+
+        var user = new User();
+        user.save(userDetails, {
+            success: function(user) {
+
+                console.log("Task Saved!");//Remove Later
+
+                router.navigate('', { trigger: true});
+
+            },
+            error: function() {
+                router.navigate('', {trigger: true});
+                alert("Waiting on approval to update record for  " + '  First Name: ' + user.get('firstname') + '  Last Name: ' + user.get('lastname') + '  POINTS: ' + user.get('points'));
+
+            }
+        });
+        return false;
+    },
+    deleteUser: function(evt) {
+
+        //delete user/id
+        this.user.destroy({
+            success: function() {
+                router.navigate('', {
+                    trigger: true
+                });
+            }
+        });
+        return false;
+    }
+
+
+});
+
+var taskList = new TaskList();
+var editUser = new EditTask();
+var rewardInfo = new Rewards();
+var settingsInfo = new Settings();
+var completedTasks = new Completed();
+var Router = Backbone.Router.extend({
+
+    routes: {
+        '': 'home',
+        'new': 'editUser',
+        'edit/:id': 'editUser',
+        'task': 'parentView',
+        'editTask': 'childView',
+        'rewards': 'rewardView',
+        'settings':'settingsView',
+        'completed':'completedView'
+    }
+});
+
+
+var router = new Router();
+router.on("route:home", function(ev) {
+    taskList.render();
+    console.log("Task List Home Route was triggered");
+});
+router.on('route:editUser', function(id) {
+
+    editUser.render({
+        id: id
+    });
+});
+router.on('route:rewardView', function() { 
+
+    
+	rewardInfo.render();
+
+	$(function() {
+    $( "#dialog-message" ).dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog( "close" );
+          //router.navigate( '#/settings' );
+          rewardInfo.getTasks();
+          
+        }
+      }
+    });
+  });
+
+   
+
+});
+router.on('route:settingsView', function(){
+	settingsInfo.render();
+});
+router.on('route:completedView', function(){
+	completedTasks.render();
+});
+
+Backbone.history.start();
+
+function playSound(){
+    var audio = new Audio('sound/1.m4a');
+    audio.play();
+    
+}
+
+var x = false
+function add(){
+    
+
+    if (!x){
+        $payloadMeter.changeValue(75);
+        x = true;
+    }
+    else {
+        $payloadMeter.changeValue(100);
+        x = false;
+
+        /**********Unlocked items message**/
+        	$(function() {
+    $( "#dialog-message-unlocked" ).dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $( this ).dialog( "close" );
+         router.navigate( 'completed',{trigger: true});
+        }
+      }
+    });
+  });
+        /*********End Unlocked items message**/
+
+    }
+}
+
+
+function playVideo()
+{
+    $('#vid').css({left:0});
+    var video = $('#vid').get(0);
+        video.play();
+        video.onended = function(e) {
+            $('#vid').css({left:-10000});
+        };
+    //$('#vid').play();
+}
+
+
+
+$(document).ready(function(){
+
+
+});
+
+</script>
+
+
+
+</body>
+</html>
+
